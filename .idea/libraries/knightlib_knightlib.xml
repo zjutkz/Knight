@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="knightlib.knightlib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/knightlib/build/libs/knightlib.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
