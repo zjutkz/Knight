@@ -9,20 +9,16 @@ import com.zjutkz.AbsKnightDress;
 import com.zjutkz.annotation.Knight;
 import com.zjutkz.info.ComponentInfo;
 import com.zjutkz.info.KnightInfo;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -47,7 +43,7 @@ public class KnightProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv)
     {
         super.init(processingEnv);
-        // 元素操作的辅助类
+
         elementUtils = processingEnv.getElementUtils();
     }
 
