@@ -6,6 +6,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.zjutkz.AbsKnightDress;
+import com.zjutkz.annotation.Dress;
 import com.zjutkz.annotation.Knight;
 import com.zjutkz.info.ComponentInfo;
 import com.zjutkz.info.KnightInfo;
@@ -21,6 +22,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -30,14 +32,21 @@ import javax.lang.model.util.Elements;
 /**
  * Created by kangzhe on 16/4/2.
  */
-@SupportedAnnotationTypes("com.zjutkz.annotation.Knight")
+@SupportedAnnotationTypes({"com.zjutkz.annotation.Knight","com.zjutkz.annotation.Dress"})
+
 public class KnightProcessor extends AbstractProcessor {
 
     private static int justOneTime = 1;
 
     Elements elementUtils;
 
+    String className = "";
+
+    String packageName = "";
+
     private Map<String,KnightInfo> mInfoMap = new HashMap<>();
+
+    private Map<String,Map<String,String>> mCustomViewMap = new HashMap<>();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv)
@@ -53,20 +62,30 @@ public class KnightProcessor extends AbstractProcessor {
             return false;
         }
 
-        String className = "";
-        String packageName = "";
+        for(Element element : roundEnv.getElementsAnnotatedWith(Dress.class)){
+            if(element.getKind() == ElementKind.FIELD) {
+                VariableElement varElement = (VariableElement) element;
+
+                String parentClassName = varElement.getEnclosingElement().getSimpleName().toString();
+
+                String fieldName = varElement.getSimpleName().toString();
+                String className = varElement.asType().toString();
+
+                if(mCustomViewMap.containsKey(parentClassName)){
+                    mCustomViewMap.get(parentClassName).put(className,fieldName);
+                }else{
+                    Map<String,String> elements = new HashMap<>();
+                    elements.put(className,fieldName);
+                    mCustomViewMap.put(parentClassName,elements);
+                }
+            }
+        }
 
         for(Element element : roundEnv.getElementsAnnotatedWith(Knight.class)) {
             if (element.getKind() == ElementKind.FIELD) {
                 VariableElement varElement = (VariableElement) element;
 
-                TypeElement classElement = (TypeElement) element.getEnclosingElement();
-
-                PackageElement packageElement = elementUtils.getPackageOf(classElement);
-
-                packageName = packageElement.getQualifiedName().toString();
-
-                className = getClassName(classElement, packageName);
+                getClassAndPackageName(element);
 
                 String resNames[] = varElement.getAnnotation(Knight.class).resName().split(",");
                 int[] nightResIds = varElement.getAnnotation(Knight.class).nightResId();
@@ -93,6 +112,33 @@ public class KnightProcessor extends AbstractProcessor {
                     mInfoMap.put(className, info);
                 }
                 mInfoMap.get(className).setComponent(componentInfo);
+            }else if(element.getKind() == ElementKind.METHOD){
+                ExecutableElement executableElement = (ExecutableElement)element;
+
+                int nightRes = executableElement.getAnnotation(Knight.class).nightResId()[0];
+                int dayRes = executableElement.getAnnotation(Knight.class).dayResId()[0];
+
+                String methodName = executableElement.getSimpleName().toString();
+
+                getClassAndPackageName(element);
+
+                for(String className : mCustomViewMap.keySet()){
+                    TypeElement typeElement = (TypeElement)executableElement.getEnclosingElement();
+
+                    String fieldType = typeElement.asType().toString();
+
+                    ComponentInfo componentInfo = new ComponentInfo(mCustomViewMap.get(className).get(fieldType),fieldType);
+                    componentInfo.setRes(methodName,nightRes,dayRes);
+
+                    if(mCustomViewMap.get(className).keySet().contains(fieldType)){
+                        KnightInfo info = mInfoMap.get(className);
+                        if(info == null ){
+                            info = new KnightInfo(packageName,className);
+                            mInfoMap.put(className, info);
+                        }
+                        mInfoMap.get(className).setComponent(componentInfo);
+                    }
+                }
             }
         }
 
@@ -176,6 +222,9 @@ public class KnightProcessor extends AbstractProcessor {
                     case "textColor":
                         method += "((" + contextClassName + ")context)." + name + ".setTextColor(context.getResources().getColor(" + dayRes + "));\n";
                         break;
+                    default:
+                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
+                        break;
                 }
             }
         }
@@ -207,6 +256,9 @@ public class KnightProcessor extends AbstractProcessor {
                     case "textColor":
                         method += "((" + contextClassName + ")context)." + name + ".setTextColor(context.getResources().getColor(" + nightRes + "));\n";
                         break;
+                    default:
+                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
+                        break;
                 }
             }
         }
@@ -214,9 +266,16 @@ public class KnightProcessor extends AbstractProcessor {
         return method;
     }
 
-    private String getClassName(TypeElement type, String packageName) {
+    private void getClassAndPackageName(Element element) {
+        TypeElement classElement = (TypeElement) element.getEnclosingElement();
+
+        PackageElement packageElement = elementUtils.getPackageOf(classElement);
+
+        packageName = packageElement.getQualifiedName().toString();
+
         int packageLen = packageName.length() + 1;
-        return type.getQualifiedName().toString().substring(packageLen)
+
+        className = classElement.getQualifiedName().toString().substring(packageLen)
                 .replace('.', '$');
     }
 

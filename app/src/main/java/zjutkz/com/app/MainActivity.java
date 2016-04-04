@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zjutkz.annotation.Dress;
 import com.zjutkz.annotation.Knight;
 import com.zjutkz.utils.KnightUtil;
 
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     @Knight(resName = "src",dayResId = R.drawable.ironman,nightResId = R.drawable.cap)
     ImageView iv;
 
+    @Dress
+    BorderView bv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         change = (Button)findViewById(R.id.change);
         tv = (TextView)findViewById(R.id.tv);
         iv = (ImageView)findViewById(R.id.iv);
+        bv = (BorderView)findViewById(R.id.bv);
     }
 
     @Override
