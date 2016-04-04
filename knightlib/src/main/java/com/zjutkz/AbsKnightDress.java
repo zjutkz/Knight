@@ -7,13 +7,13 @@ import android.content.Context;
  */
 public abstract class AbsKnightDress {
 
-    protected Context context;
+    protected Object context;
 
     public abstract void changeToNight();
 
     public abstract void changeToDay();
 
-    public void setContext(Context context){
+    public void setContext(Object context){
         this.context = context;
     }
 }

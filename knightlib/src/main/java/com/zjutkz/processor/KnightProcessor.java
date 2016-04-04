@@ -214,13 +214,16 @@ public class KnightProcessor extends AbstractProcessor {
 
                 switch(resName){
                     case "background":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(context.getResources().getDrawable(" + dayRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
                         break;
                     case "src":
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(context.getResources().getDrawable(" + dayRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
                         break;
                     case "textColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(context.getResources().getColor(" + dayRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
+                        break;
+                    case "backgroundColor":
+                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
                         break;
                     default:
                         method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
@@ -248,13 +251,16 @@ public class KnightProcessor extends AbstractProcessor {
 
                 switch(resName){
                     case "background":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(context.getResources().getDrawable(" + nightRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
                         break;
                     case "src":
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(context.getResources().getDrawable(" + nightRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
                         break;
                     case "textColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(context.getResources().getColor(" + nightRes + "));\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
+                        break;
+                    case "backgroundColor":
+                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
                         break;
                     default:
                         method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
