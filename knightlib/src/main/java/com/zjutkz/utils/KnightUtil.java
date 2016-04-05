@@ -40,13 +40,7 @@ public class KnightUtil {
             }
         }
 
-        if(dressed instanceof Activity){
-            dress.setContext((Activity)dressed);
-        }else if(dressed instanceof View){
-            dress.setContext(((View) dressed).getContext());
-        }else if(dressed instanceof Fragment){
-            dress.setContext(dressed);
-        }
+        dress.setContext(dressed);
 
         dress.changeToNight();
     }
@@ -73,13 +67,7 @@ public class KnightUtil {
             }
         }
 
-        if(dressed instanceof Activity){
-            dress.setContext(dressed);
-        }else if(dressed instanceof View){
-            dress.setContext(((View) dressed).getContext());
-        }else if(dressed instanceof Fragment){
-            dress.setContext(dressed);
-        }
+        dress.setContext(dressed);
 
         dress.changeToDay();
     }
