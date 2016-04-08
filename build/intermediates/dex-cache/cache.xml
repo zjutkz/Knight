@@ -1,12 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" >
-
-    <item
-        jar="/Users/kangzhe/Knight/knightlib/build/libs/knightlib.jar"
-        jumboMode="false"
-        revision="23.0.3"
-        sha1="f887200d02c542bb4baeb1bccfee484fadfab0dc">
-        <dex dex="/Users/kangzhe/Knight/app/build/intermediates/pre-dexed/debug/knightlib_7911dbde35ea3b29f082a172fa96bfd4e98b56ae.jar" />
-    </item>
-
-</items>
+<items version="2" />

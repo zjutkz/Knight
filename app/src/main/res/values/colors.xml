@@ -12,4 +12,10 @@
 
     <color name="nav_background_night">#6b8e23</color>
     <color name="nav_background_day">#ffffff</color>
+
+    <color name="night_background">#000000</color>
+    <color name="day_background">#ffffff</color>
+
+    <color name="night_text_color">#ffffff</color>
+    <color name="day_text_color">#000000</color>
 </resources>
