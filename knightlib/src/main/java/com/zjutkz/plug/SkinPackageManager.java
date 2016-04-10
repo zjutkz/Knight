@@ -7,12 +7,16 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by kangzhe on 16/4/10.
@@ -49,6 +53,54 @@ public class SkinPackageManager {
             mInstance = new SkinPackageManager(mContext);
         }
         return mInstance;
+    }
+
+    /**
+     * 从网络中加载
+     *
+     * @param downloadPath
+     * @param path
+     * @return
+     */
+    public boolean copyApkFromNet(String downloadPath,String path) {
+        boolean copyIsFinish = false;
+
+        mDexPah = path;
+
+        try {
+            //file:/storage/emulated/0/test.apk
+            File file = new File(path);
+
+            URL url = new URL(downloadPath);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            InputStream in = connection.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(in);
+            if (!file.exists()) {
+                file.createNewFile();
+            } else {
+                file.delete();
+                file.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+
+            byte[] buffer = new byte[1024];
+            int size = -1;
+            while ((size = bis.read(buffer)) != -1) {
+                fos.write(buffer, 0, size);
+            }
+
+            fos.flush();
+            fos.close();
+            bis.close();
+            connection.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
     /**

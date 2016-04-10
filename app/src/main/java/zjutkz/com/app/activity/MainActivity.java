@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
             manager.sendBroadcast(intent);
         }else{
-            
+
             Intent intent = new Intent();
             intent.setAction(MyApp.CHANGE_SKIN);
             intent.putExtra(MyApp.ACTION_IS_NIGHT, MyApp.isNight);
