@@ -43,6 +43,8 @@ public class KnightUtil {
         dress.setContext(dressed);
 
         dress.changeToNight();
+
+        dress.loadSkin(true);
     }
 
     public static void changeToDay(Object dressed){
@@ -70,5 +72,7 @@ public class KnightUtil {
         dress.setContext(dressed);
 
         dress.changeToDay();
+
+        dress.loadSkin(false);
     }
 }

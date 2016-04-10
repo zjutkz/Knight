@@ -1,1 +1,1 @@
-include ':app', ':knightlib', ':lib'
+include ':app', ':knightlib', ':lib', ':res'

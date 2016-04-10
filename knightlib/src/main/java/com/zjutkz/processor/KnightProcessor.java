@@ -8,6 +8,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.zjutkz.AbsKnightDress;
 import com.zjutkz.annotation.Dress;
 import com.zjutkz.annotation.Knight;
+import com.zjutkz.annotation.Plug;
 import com.zjutkz.info.ComponentInfo;
 import com.zjutkz.info.KnightInfo;
 import java.io.IOException;
@@ -32,7 +33,7 @@ import javax.lang.model.util.Elements;
 /**
  * Created by kangzhe on 16/4/2.
  */
-@SupportedAnnotationTypes({"com.zjutkz.annotation.Knight","com.zjutkz.annotation.Dress"})
+@SupportedAnnotationTypes({"com.zjutkz.annotation.Knight","com.zjutkz.annotation.Dress","com.zjutkz.annotation.Plug"})
 
 public class KnightProcessor extends AbstractProcessor {
 
@@ -142,6 +143,43 @@ public class KnightProcessor extends AbstractProcessor {
             }
         }
 
+        for(Element element : roundEnv.getElementsAnnotatedWith(Plug.class)){
+            if (element.getKind() == ElementKind.FIELD) {
+                VariableElement variableElement = (VariableElement)element;
+
+                getClassAndPackageName(element);
+
+                String[] resNames = variableElement.getAnnotation(Plug.class).resName().split(",");
+                String[] nightResNames = variableElement.getAnnotation(Plug.class).nightResName();
+                String[] dayResNames = variableElement.getAnnotation(Plug.class).dayResName();
+                String[] valueNames = variableElement.getAnnotation(Plug.class).valueName();
+                String packageName = variableElement.getAnnotation(Plug.class).packageName();
+
+                if(resNames.length != nightResNames.length || resNames.length != dayResNames.length || resNames.length != valueNames.length){
+                    throw new RuntimeException("The numbers of arguments you set are not consistence!");
+                }
+
+                String fieldName = variableElement.getSimpleName().toString();
+                String fieldType = variableElement.asType().toString();
+
+                ComponentInfo componentInfo = new ComponentInfo(fieldName,fieldType);
+                for(int i = 0;i < resNames.length;i++){
+                    String resName = resNames[i];
+                    String nightResName = nightResNames[i];
+                    String dayResName = dayResNames[i];
+                    String valueName = valueNames[i];
+                    componentInfo.setPlugRes(resName, nightResName, dayResName,valueName,packageName);
+                }
+
+                KnightInfo info = mInfoMap.get(className);
+                if(info == null){
+                    info = new KnightInfo(packageName,className);
+                    mInfoMap.put(className, info);
+                }
+                mInfoMap.get(className).setComponent(componentInfo);
+            }
+        }
+
         for(String clzName : mInfoMap.keySet()){
 
             KnightInfo info = mInfoMap.get(clzName);
@@ -174,6 +212,18 @@ public class KnightProcessor extends AbstractProcessor {
                     .addStatement(changeToDayMethod)
                     .build();
 
+            String changeToPlugNightMethod = generateChangeToPlugNightMethod(info);
+
+            MethodSpec plugChangeToNight = MethodSpec.methodBuilder("plugChangeToNight")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement(changeToPlugNightMethod)
+                    .build();
+
+            String changeToPlugDayMethod = generateChangeToPlugDayMethod(info);
+            MethodSpec plugChangeToDay = MethodSpec.methodBuilder("plugChangeToDay")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addStatement(changeToPlugDayMethod)
+                    .build();
             try {
                 TypeSpec.Builder builder = TypeSpec.classBuilder(mInfoMap.get(clzName).getKnightClassName())
                         .superclass(AbsKnightDress.class)
@@ -182,7 +232,7 @@ public class KnightProcessor extends AbstractProcessor {
                     builder.addField(spec);
                 }
 
-                builder.addMethod(changeToNight).addMethod(changeToDay);
+                builder.addMethod(changeToNight).addMethod(changeToDay).addMethod(plugChangeToNight).addMethod(plugChangeToDay);
 
                 TypeSpec knightClz = builder.build();
 
@@ -196,6 +246,104 @@ public class KnightProcessor extends AbstractProcessor {
         }
 
         return true;
+    }
+
+    private String generateChangeToPlugDayMethod(KnightInfo knightInfo) {
+        int idCount = 0;
+
+        String method = "";
+
+        String contextClassName = knightInfo.getClassName();
+
+        List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
+
+        for(ComponentInfo info : componentInfoList){
+            String name = info.getName();
+            Map<String,String[]> resMap = info.getPlugResMap();
+
+            for(String resName : resMap.keySet()){
+                String dayRes = resMap.get(resName)[1];
+                String valueName = resMap.get(resName)[2];
+                String packageName = resMap.get(resName)[3];
+
+                switch(resName){
+                    case "background":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "src":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "textColor":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "backgroundColor":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    default:
+                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
+                        break;
+                }
+            }
+        }
+
+        return method;
+    }
+
+    private String generateChangeToPlugNightMethod(KnightInfo knightInfo) {
+        int idCount = 0;
+
+        String method = "";
+
+        String contextClassName = knightInfo.getClassName();
+
+        List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
+
+        for(ComponentInfo info : componentInfoList){
+            String name = info.getName();
+            Map<String,String[]> resMap = info.getPlugResMap();
+
+            for(String resName : resMap.keySet()){
+                String nightRes = resMap.get(resName)[0];
+                String valueName = resMap.get(resName)[2];
+                String packageName = resMap.get(resName)[3];
+
+                switch(resName){
+                    case "background":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "src":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "textColor":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    case "backgroundColor":
+                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                        break;
+                    default:
+                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
+                        break;
+                }
+            }
+        }
+
+        return method;
     }
 
     private String generateChangeToDayMethod(KnightInfo knightInfo) {
