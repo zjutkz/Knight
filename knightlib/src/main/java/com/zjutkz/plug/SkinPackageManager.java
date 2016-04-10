@@ -68,7 +68,6 @@ public class SkinPackageManager {
         mDexPah = path;
 
         try {
-            //file:/storage/emulated/0/test.apk
             File file = new File(path);
 
             URL url = new URL(downloadPath);
@@ -93,6 +92,7 @@ public class SkinPackageManager {
             fos.flush();
             fos.close();
             bis.close();
+            copyIsFinish = true;
             connection.disconnect();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -100,7 +100,7 @@ public class SkinPackageManager {
             e.printStackTrace();
         }
 
-        return true;
+        return copyIsFinish;
     }
 
     /**

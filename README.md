@@ -13,6 +13,7 @@ I will introduce usage [on my blog](http://zjutkz.net).How apt and [butterKnife]
 
 
 
-###todo
+###Thanks
 
-Support plug-in
+[devilWwj/Android-skin-update](https://github.com/devilWwj/Android-skin-update)
+
