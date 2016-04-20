@@ -6,17 +6,20 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import com.zjutkz.AbsKnightDress;
+import com.zjutkz.Constants.Config;
 import com.zjutkz.annotation.Dress;
 import com.zjutkz.annotation.Knight;
 import com.zjutkz.annotation.Plug;
 import com.zjutkz.info.ComponentInfo;
 import com.zjutkz.info.KnightInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -184,6 +187,7 @@ public class KnightProcessor extends AbstractProcessor {
 
             KnightInfo info = mInfoMap.get(clzName);
 
+
             List<FieldSpec> fieldList = new ArrayList<>();
 
             for(ComponentInfo componentInfo : info.getComponentInfoList()){
@@ -254,6 +258,10 @@ public class KnightProcessor extends AbstractProcessor {
         String method = "";
 
         String contextClassName = knightInfo.getClassName();
+        String newClassName = "";
+        if(contextClassName.contains(Config.AdapterPlaceHolder)){
+            newClassName = contextClassName.replaceAll(Config.AdapterPlaceHolder,".");
+        }
 
         List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
 
@@ -266,30 +274,58 @@ public class KnightProcessor extends AbstractProcessor {
                 String valueName = resMap.get(resName)[2];
                 String packageName = resMap.get(resName)[3];
 
-                switch(resName){
-                    case "background":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "src":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "textColor":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "backgroundColor":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    default:
-                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
-                        break;
+                if(newClassName.equals("")){
+                    switch(resName){
+                        case "background":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "src":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "textColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        default:
+                            method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
+                            break;
+                    }
+                }else{
+                    switch(resName){
+                        case "background":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "src":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "textColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + dayRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        default:
+                            method += "((" + newClassName + ")inject).context." + name + "." + resName + "(" + dayRes + ");\n";
+                            break;
+                    }
                 }
             }
         }
@@ -303,6 +339,10 @@ public class KnightProcessor extends AbstractProcessor {
         String method = "";
 
         String contextClassName = knightInfo.getClassName();
+        String newClassName = "";
+        if(contextClassName.contains(Config.AdapterPlaceHolder)){
+            newClassName = contextClassName.replaceAll(Config.AdapterPlaceHolder,".");
+        }
 
         List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
 
@@ -315,31 +355,60 @@ public class KnightProcessor extends AbstractProcessor {
                 String valueName = resMap.get(resName)[2];
                 String packageName = resMap.get(resName)[3];
 
-                switch(resName){
-                    case "background":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "src":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "textColor":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    case "backgroundColor":
-                        method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
-                                "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
-                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
-                        break;
-                    default:
-                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
-                        break;
+                if(newClassName.equals("")){
+                    switch(resName){
+                        case "background":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "src":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "textColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        default:
+                            method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
+                            break;
+                    }
+                }else{
+                    switch(resName){
+                        case "background":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setBackground(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "src":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setImageDrawable(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "textColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setTextColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "int id" + (++idCount) + " = " + "mResource.getIdentifier(" + "\"" + nightRes + "\"" +
+                                    "," + "\"" + valueName + "\"" + "," + "\"" + packageName + "\"" + ");\n";
+                            method += "((" + newClassName + ")inject).context." + name + ".setBackgroundColor(mResource.getColor(id" + idCount + "));\n";
+                            break;
+                        default:
+                            method += "((" + newClassName + ")inject).context." + name + "." + resName + "(" + nightRes + ");\n";
+                            break;
+                    }
                 }
+
             }
         }
 
@@ -350,6 +419,10 @@ public class KnightProcessor extends AbstractProcessor {
         String method = "";
 
         String contextClassName = knightInfo.getClassName();
+        String newClassName = "";
+        if(contextClassName.contains(Config.AdapterPlaceHolder)){
+            newClassName = contextClassName.replaceAll(Config.AdapterPlaceHolder,".");
+        }
 
         List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
 
@@ -359,23 +432,42 @@ public class KnightProcessor extends AbstractProcessor {
 
             for(String resName : resMap.keySet()){
                 int dayRes = resMap.get(resName)[1];
-
-                switch(resName){
-                    case "background":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
-                        break;
-                    case "src":
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
-                        break;
-                    case "textColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
-                        break;
-                    case "backgroundColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
-                        break;
-                    default:
-                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
-                        break;
+                if(newClassName.equals("")){
+                    switch(resName){
+                        case "background":
+                            method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
+                            break;
+                        case "src":
+                            method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + dayRes + "));\n";
+                            break;
+                        case "textColor":
+                            method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + dayRes + "));\n";
+                            break;
+                        default:
+                            method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + dayRes + ");\n";
+                            break;
+                    }
+                }else {
+                    switch(resName){
+                        case "background":
+                            method += "((" + newClassName + ")inject)." + name + ".setBackground(((" + newClassName + ")" + "inject).context.getResources().getDrawable(" + dayRes + "));\n";
+                            break;
+                        case "src":
+                            method += "((" + newClassName + ")inject)." + name + ".setImageDrawable(((" + newClassName + ")" + "inject).context.getResources().getDrawable(" + dayRes + "));\n";
+                            break;
+                        case "textColor":
+                            method += "((" + newClassName + ")inject)." + name + ".setTextColor(((" + newClassName + ")" + "inject).context.getResources().getColor(" + dayRes + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "((" + newClassName + ")inject)." + name + ".setBackgroundColor(((" + newClassName + ")" + "inject).context.getResources().getColor(" + dayRes + "));\n";
+                            break;
+                        default:
+                            method += "((" + newClassName + ")inject)." + name + "." + resName + "(" + dayRes + ");\n";
+                            break;
+                    }
                 }
             }
         }
@@ -387,6 +479,10 @@ public class KnightProcessor extends AbstractProcessor {
         String method = "";
 
         String contextClassName = knightInfo.getClassName();
+        String newClassName = "";
+        if(contextClassName.contains(Config.AdapterPlaceHolder)){
+            newClassName = contextClassName.replaceAll(Config.AdapterPlaceHolder,".");
+        }
 
         List<ComponentInfo> componentInfoList = knightInfo.getComponentInfoList();
 
@@ -397,22 +493,42 @@ public class KnightProcessor extends AbstractProcessor {
             for(String resName : resMap.keySet()){
                 int nightRes = resMap.get(resName)[0];
 
-                switch(resName){
-                    case "background":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
-                        break;
-                    case "src":
-                        method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
-                        break;
-                    case "textColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
-                        break;
-                    case "backgroundColor":
-                        method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
-                        break;
-                    default:
-                        method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
-                        break;
+                if(newClassName.equals("")){
+                    switch(resName){
+                        case "background":
+                            method += "((" + contextClassName + ")context)." + name + ".setBackground(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
+                            break;
+                        case "src":
+                            method += "((" + contextClassName + ")context)." + name + ".setImageDrawable(((" + contextClassName + ")" + "context).getResources().getDrawable(" + nightRes + "));\n";
+                            break;
+                        case "textColor":
+                            method += "((" + contextClassName + ")context)." + name + ".setTextColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "((" + contextClassName + ")context)." + name + ".setBackgroundColor(((" + contextClassName + ")" + "context).getResources().getColor(" + nightRes + "));\n";
+                            break;
+                        default:
+                            method += "((" + contextClassName + ")context)." + name + "." + resName + "(" + nightRes + ");\n";
+                            break;
+                    }
+                }else{
+                    switch(resName){
+                        case "background":
+                            method += "((" + newClassName + ")inject)." + name + ".setBackground(((" + newClassName + ")" + "inject).context.getResources().getDrawable(" + nightRes + "));\n";
+                            break;
+                        case "src":
+                            method += "((" + newClassName + ")inject)." + name + ".setImageDrawable(((" + newClassName + ")" + "inject).context.getResources().getDrawable(" + nightRes + "));\n";
+                            break;
+                        case "textColor":
+                            method += "((" + newClassName + ")inject)." + name + ".setTextColor(((" + newClassName + ")" + "inject).context.getResources().getColor(" + nightRes + "));\n";
+                            break;
+                        case "backgroundColor":
+                            method += "((" + newClassName + ")inject)." + name + ".setBackgroundColor(((" + newClassName + ")" + "inject).context.getResources().getColor(" + nightRes + "));\n";
+                            break;
+                        default:
+                            method += "((" + newClassName + ")inject)." + name + "." + resName + "(" + nightRes + ");\n";
+                            break;
+                    }
                 }
             }
         }
@@ -427,10 +543,12 @@ public class KnightProcessor extends AbstractProcessor {
 
         packageName = packageElement.getQualifiedName().toString();
 
-        int packageLen = packageName.length() + 1;
-
-        className = classElement.getQualifiedName().toString().substring(packageLen)
-                .replace('.', '$');
+        if(classElement.getSimpleName().toString().contains("ViewHolder")){
+            TypeElement adapterElement = (TypeElement)classElement.getEnclosingElement();
+            className = adapterElement.getSimpleName().toString() + Config.AdapterPlaceHolder + classElement.getSimpleName().toString();
+        }else{
+            className = classElement.getSimpleName().toString();
+        }
     }
 
     private Class convertToClass(String clzName) throws ClassNotFoundException {

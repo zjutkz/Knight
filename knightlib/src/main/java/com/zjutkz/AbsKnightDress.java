@@ -1,13 +1,11 @@
 package com.zjutkz;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 
-import com.zjutkz.plug.SkinConfig;
 import com.zjutkz.plug.SkinPackageManager;
 
 /**
@@ -16,6 +14,8 @@ import com.zjutkz.plug.SkinPackageManager;
 public abstract class AbsKnightDress {
 
     protected Object context;
+
+    protected Object inject;
 
     protected String dexPath;
 
@@ -29,6 +29,10 @@ public abstract class AbsKnightDress {
 
     public abstract void plugChangeToDay();
 
+    public void setInject(Object inject){
+        this.inject = inject;
+    }
+
     public void setContext(Object context){
         this.context = context;
 
@@ -37,9 +41,9 @@ public abstract class AbsKnightDress {
 
             mResource = SkinPackageManager.getInstance(((Fragment) context).getActivity()).mResources;
         }else if(context instanceof Activity){
-            dexPath = SkinPackageManager.getInstance((Activity)context).mDexPah;
+            dexPath = SkinPackageManager.getInstance((Activity) context).mDexPah;
 
-            mResource = SkinPackageManager.getInstance((Activity)context).mResources;
+            mResource = SkinPackageManager.getInstance((Activity) context).mResources;
         }else if(context instanceof View){
             dexPath = SkinPackageManager.getInstance(((View) context).getContext()).mDexPah;
 
@@ -73,7 +77,7 @@ public abstract class AbsKnightDress {
                         }
                     });
         }else if(context instanceof Activity){
-            SkinPackageManager.getInstance((Activity)context).loadSkinAsync(dexPath,
+            SkinPackageManager.getInstance((Activity) context).loadSkinAsync(dexPath,
                     new SkinPackageManager.loadSkinCallBack() {
 
                         @Override
@@ -97,7 +101,7 @@ public abstract class AbsKnightDress {
                         }
                     });
         }else if(context instanceof View){
-            SkinPackageManager.getInstance(((View)context).getContext()).loadSkinAsync(dexPath,
+            SkinPackageManager.getInstance(((View) context).getContext()).loadSkinAsync(dexPath,
                     new SkinPackageManager.loadSkinCallBack() {
 
                         @Override

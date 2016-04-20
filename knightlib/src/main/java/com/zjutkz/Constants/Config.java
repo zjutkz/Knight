@@ -5,5 +5,11 @@ package com.zjutkz.Constants;
  */
 public class Config {
 
-    public static String KNIGHT = "$$KNIGHT";
+    public static final String KNIGHT = "$$KNIGHT";
+
+    public static final String AdapterPlaceHolder = "isAAdapter";
+
+    public static final String ACTION_DAY = "action_day";
+
+    public static final String ACTION_NIGHT = "action_night";
 }
