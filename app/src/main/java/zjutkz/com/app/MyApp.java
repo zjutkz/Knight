@@ -16,8 +16,6 @@ public class MyApp extends Application{
 
     public static final String ACTION_IS_NIGHT = "action_is_night";
 
-    public static boolean isNight = false;
-
     @Override
     public void onCreate() {
         super.onCreate();

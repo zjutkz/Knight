@@ -1,6 +1,7 @@
 package com.zjutkz.utils;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.zjutkz.AbsKnightDress;
@@ -22,10 +23,15 @@ public class KnightUtil {
         changeToNight(dressed, "", null);
     }
 
-    public static void changeToNight(Context dressed,String clzName,Object inject){
+    public static void changeToNight(Object dressed,String clzName,Object inject){
         String newClzName = "";
 
-        FileUtils.saveString(dressed, ModeConstants.MODE_KEY, ModeConstants.MODE_NIGHT);
+        if(dressed instanceof Context){
+            FileUtils.saveString((Context)dressed, ModeConstants.MODE_KEY, ModeConstants.MODE_NIGHT);
+        }else if(dressed instanceof Fragment){
+            Context fragContext = ((Fragment) dressed).getActivity();
+            FileUtils.saveString(fragContext, ModeConstants.MODE_KEY, ModeConstants.MODE_NIGHT);
+        }
 
         if(clzName.equals("")){
             clzName = dressed.getClass().getSimpleName() + Config.KNIGHT;
@@ -84,13 +90,18 @@ public class KnightUtil {
     }
 
     public static void changeToDay(Context dressed){
-        changeToDay(dressed, "",null);
+        changeToDay(dressed, "", null);
     }
 
-    public static void changeToDay(Context dressed,String clzName,Object inject){
+    public static void changeToDay(Object dressed,String clzName,Object inject){
         String newClzName = "";
 
-        FileUtils.saveString(dressed, ModeConstants.MODE_KEY, ModeConstants.MODE_DAY);
+        if(dressed instanceof Context){
+            FileUtils.saveString((Context)dressed, ModeConstants.MODE_KEY, ModeConstants.MODE_DAY);
+        }else if(dressed instanceof Fragment){
+            Context fragContext = ((Fragment) dressed).getActivity();
+            FileUtils.saveString(fragContext, ModeConstants.MODE_KEY, ModeConstants.MODE_DAY);
+        }
 
         if(clzName.equals("")){
             clzName = dressed.getClass().getSimpleName() + Config.KNIGHT;
@@ -149,22 +160,38 @@ public class KnightUtil {
         dress.loadSkin(false);
     }
 
-    public static void prepareForChange(Context context){
+    public static void prepareForChange(Object context){
         prepareForChange(context,"",null);
     }
 
-    public static void prepareForChange(Context context,String clzName,Object inject){
-        String mode = FileUtils.loadString(context, ModeConstants.MODE_KEY);
-        if(TextUtils.isEmpty(mode)){
-            FileUtils.saveString(context,ModeConstants.MODE_KEY,ModeConstants.MODE_DAY);
-            mode = ModeConstants.MODE_DAY;
+    public static void prepareForChange(Object context,String clzName,Object inject){
+        if(context instanceof Context){
+            String mode = FileUtils.loadString((Context)context, ModeConstants.MODE_KEY);
+            if(TextUtils.isEmpty(mode)){
+                FileUtils.saveString((Context)context,ModeConstants.MODE_KEY,ModeConstants.MODE_DAY);
+                mode = ModeConstants.MODE_DAY;
+            }
+
+            if(mode.equals(ModeConstants.MODE_DAY)){
+                changeToDay(context,clzName,inject);
+            }else{
+                changeToNight(context,clzName,inject);
+            }
+        }else if(context instanceof Fragment){
+            Context fragContext = ((Fragment) context).getActivity();
+            String mode = FileUtils.loadString(fragContext, ModeConstants.MODE_KEY);
+            if(TextUtils.isEmpty(mode)){
+                FileUtils.saveString(fragContext,ModeConstants.MODE_KEY,ModeConstants.MODE_DAY);
+                mode = ModeConstants.MODE_DAY;
+            }
+
+            if(mode.equals(ModeConstants.MODE_DAY)){
+                changeToDay(context,clzName,inject);
+            }else{
+                changeToNight(context,clzName,inject);
+            }
         }
 
-        if(mode.equals(ModeConstants.MODE_DAY)){
-            changeToDay(context,clzName,inject);
-        }else{
-            changeToNight(context,clzName,inject);
-        }
     }
 
     public static boolean isNight(Context context){

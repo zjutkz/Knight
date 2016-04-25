@@ -54,9 +54,9 @@ public class MyNavigationView extends NavigationView{
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(MyApp.CHANGE_SKIN)){
                 if(intent.getBooleanExtra(MyApp.ACTION_IS_NIGHT,false)){
-                    KnightUtil.changeToNight(this);
+                    KnightUtil.changeToNight(MyNavigationView.this.getContext());
                 }else {
-                    KnightUtil.changeToDay(this);
+                    KnightUtil.changeToDay(MyNavigationView.this.getContext());
                 }
             }
         }

@@ -1,13 +1,9 @@
 package zjutkz.com.app.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,10 +31,6 @@ public class ContentFragment extends Fragment{
     @Bind(R.id.content_desc)
     TextView desc;
 
-    LocalBroadcastManager manager;
-
-    ChangeSkinBroadcastReceiver receiver;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,38 +38,20 @@ public class ContentFragment extends Fragment{
 
         ButterKnife.bind(this,view);
 
-        manager = LocalBroadcastManager.getInstance(this.getActivity());
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(MyApp.CHANGE_SKIN);
-        receiver = new ChangeSkinBroadcastReceiver();
-        manager.registerReceiver(receiver,filter) ;
 
         return view;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onResume() {
+        super.onResume();
 
-        manager.unregisterReceiver(receiver);
+        KnightUtil.prepareForChange(this);
     }
 
     public void setDesc(String text){
         desc.setText(text);
-    }
-
-    private class ChangeSkinBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(MyApp.CHANGE_SKIN)){
-                if(intent.getBooleanExtra(MyApp.ACTION_IS_NIGHT,false)){
-                    KnightUtil.changeToNight(ContentFragment.this);
-                }else {
-                    KnightUtil.changeToDay(ContentFragment.this);
-                }
-            }
-        }
     }
 }

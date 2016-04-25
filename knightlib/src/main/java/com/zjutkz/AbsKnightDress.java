@@ -63,6 +63,8 @@ public abstract class AbsKnightDress {
 
                         @Override
                         public void loadSkinSuccess() {
+                            mResource = SkinPackageManager.getInstance(((Fragment) context).getActivity()).mResources;
+
                             Log.d("TAG", "loadSkinSuccess");
                             if (isNight) {
                                 plugChangeToNight();
@@ -87,6 +89,8 @@ public abstract class AbsKnightDress {
 
                         @Override
                         public void loadSkinSuccess() {
+                            mResource = SkinPackageManager.getInstance(((Activity) context)).mResources;
+
                             Log.d("TAG", "loadSkinSuccess");
                             if (isNight) {
                                 plugChangeToNight();
@@ -111,6 +115,8 @@ public abstract class AbsKnightDress {
 
                         @Override
                         public void loadSkinSuccess() {
+                            mResource = SkinPackageManager.getInstance(((View) context).getContext()).mResources;
+
                             Log.d("TAG", "loadSkinSuccess");
                             if (isNight) {
                                 plugChangeToNight();
