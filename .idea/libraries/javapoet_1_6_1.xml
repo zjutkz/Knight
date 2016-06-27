@@ -6,6 +6,7 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.6.1/5d6994ac84adf1b3b74469b30a17c47d556fd8d0/javapoet-1.6.1-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.6.1/5d6994ac84adf1b3b74469b30a17c47d556fd8d0/javapoet-1.6.1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
