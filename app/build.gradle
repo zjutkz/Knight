@@ -33,4 +33,5 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile project(':knightlib')
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.android.support:cardview-v7:23.2.1'
 }

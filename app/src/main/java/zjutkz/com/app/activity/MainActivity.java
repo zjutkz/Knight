@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    // TODO: 16/4/25 send a broadcast to change the skin,because this page will not recreate.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 

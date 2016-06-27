@@ -4,10 +4,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.zjutkz.annotation.Knight;
@@ -25,7 +25,7 @@ public class ContentFragment extends Fragment{
 
     @Knight(resName = "backgroundColor",nightResId = {R.color.content_night},dayResId = {R.color.content_day})
     @Bind(R.id.fragment_content)
-    FrameLayout content;
+    CardView content;
 
     @Knight(resName = "textColor",nightResId = {R.color.desc_night},dayResId = {R.color.desc_day})
     @Bind(R.id.content_desc)
